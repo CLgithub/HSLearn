@@ -3,7 +3,18 @@ package com.cl.hslearn.day3;
 /**
 zookeeper 是一个分布式协调服务，就说为用户分布式应用程序提供协调服务
 zookeeper集群搭建：
-	1.多台机器，放好包
+    0.linux网卡设置：
+ 		1。静态ip，修改/etc/network/interfaces,添加：
+         iface eth0 inet static  //static为静态的
+         address 192.168.3.101   //ip地址
+         netmask 255.255.255.0   //子网掩码
+         gateway 192.168.3.1     //网关
+ 		 broadcast 192.168.3.255 //广播
+ 		2。配置dns，修改/etc/resolv.conf,添加：
+ 			nameserver xxx.xxx.xxx.xxx
+ 		3。重启网卡
+ 			/etc/init.d/networking restart
+	1.多台机器，配置好java，放好包
 	2.修改conf目录下zoo.cfg文件
 		# The number of milliseconds of each tick
 		tickTime=2000
@@ -43,7 +54,8 @@ zookeeper集群搭建：
 		./zookeeper-3.4.11/bin/zkServer.sh start	启动
 		./zookeeper-3.4.11/bin/zkServer.sh status	查看状态
 		./zookeeper-3.4.11/bin/zkServer.sh stop		停止
- 
+
+ 	当集群里有多台机器时，必须有超过半数的机器还或者才能正常，因此，不会有一个集群裂变成两个集群的现象
  */
 public class zookerper_01 {
 }
