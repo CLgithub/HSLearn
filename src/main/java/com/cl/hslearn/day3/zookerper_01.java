@@ -71,7 +71,6 @@ zookeeper命令行客户端使用：
 		EPHEMERAL_SEQUENTIAL  create -s -e /app1 "abc"
     4.get /app1 可以获取app1节点的数据，get /app1 watch可以监听app1节点数据的变化，同理ls /app1 watch 可以监听app1子节点的变化
 
-
  */
 
 public class zookerper_01 {
