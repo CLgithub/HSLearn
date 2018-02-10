@@ -40,13 +40,16 @@ public class Zookeeper_02 {
 
     public static void main(String[] args) throws IOException, KeeperException, InterruptedException {
         zooKeeper=connectZK();
-//        testGet(zooKeeper,"/");
-        testCreate(zooKeeper,"/aa","testdata");
+        testGet("/test/bb0000000001");
+//        testDel("/test/aa0000000002");
+        testSet("/test/bb0000000001","abc");
+        testGet("/test/bb0000000001");
+//        testCreate(zooKeeper,"/aa","testdata");
 
     }
 
     // 查
-    public static void testGet(ZooKeeper zooKeeper,String path) throws KeeperException, InterruptedException {
+    public static void testGet(String path) throws KeeperException, InterruptedException {
         //查
         // 节点
         List<String> children = zooKeeper.getChildren(path, Boolean.TRUE);
@@ -58,7 +61,7 @@ public class Zookeeper_02 {
     }
 
     // 增
-    public static void testCreate(ZooKeeper zooKeeper, String path, String data) throws KeeperException, InterruptedException {
+    public static void testCreate(String path, String data) throws KeeperException, InterruptedException {
         //增
         // 永久   参数：节点路径，节点数据，节点权限，节点类型
 //        String create1 = zooKeeper.create("/javaApiApp2", "this is javaAPIData".getBytes(), ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.PERSISTENT);
@@ -74,11 +77,14 @@ public class Zookeeper_02 {
         System.out.println(children1);
     }
     // 删
-    public static void testDel(ZooKeeper zooKeeper,String path){
-//        zooKeeper.delete(path,);
+    public static void testDel(String path) throws KeeperException, InterruptedException {
+        //参数，指定要删除的版本，不知道哪个版本填－1
+        zooKeeper.delete(path,-1);      //不能删除带有子节点的节点
     }
     // 改
-    public static void testSet(){
+    public static void testSet(String path, String data) throws KeeperException, InterruptedException {
+        Stat stat = zooKeeper.setData(path, data.getBytes(), -1);
+        System.out.println(stat);
     }
 
 
