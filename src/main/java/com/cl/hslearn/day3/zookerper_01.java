@@ -63,7 +63,7 @@ zookeeper命令行客户端使用：
     3.znode是树型结构
 	有两种类型：
 		1.持久(persistent)(断开连接不删除)
-		2.短暂(ephemeral)(断开连接自己删除)
+		2.短暂(ephemeral)(断开连接自己删除) 临时节点不能有子节点
 	四种形式的目录节点（默认是persistent）
 		PERSISTENT	create /app1 "data"
 		PERSISTENT_SEQUENTIAL  (持久_序列) create -s /app1 "abc"
