@@ -13,7 +13,7 @@ import java.io.IOException;
 public class Zookeeper_03_DistributedServer {
     private static ZooKeeper zooKeeper;
     private static final String connectString="us1:2181,us2.2181,us3.2181";  //一个一个尝试连接
-    private static final int sessionTimeout=2000;   //会话超时时间
+    private static final int sessionTimeout=100;   //会话超时时间
     private static final String parentNode ="/servers";
 
     public static void main(String[] args) throws IOException, KeeperException, InterruptedException {

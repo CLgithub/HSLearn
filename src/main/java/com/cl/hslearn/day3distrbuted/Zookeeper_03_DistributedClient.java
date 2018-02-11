@@ -15,7 +15,7 @@ import java.util.List;
 public class Zookeeper_03_DistributedClient {
     private static ZooKeeper zooKeeper;
     private static final String connectString="us1:2181,us2.2181,us3.2181";  //一个一个尝试连接
-    private static final int sessionTimeout=2000;   //会话超时时间
+    private static final int sessionTimeout=100;   //会话超时时间
     private static final String parentNode ="/servers";
     //加volatile的意义：直接在堆内存中修改
     private static  volatile List<String> serverList;
