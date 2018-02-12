@@ -24,7 +24,7 @@ public class Thread_01 {
     public static void main(String[] args){
 //        testThread();
         testRunable();
-        
+
     }
 
     private static void testThread() {
