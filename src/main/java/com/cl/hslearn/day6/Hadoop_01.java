@@ -68,11 +68,40 @@ package com.cl.hslearn.day6;
             需要先配置slaves：添加要启动datanode的主机名
             启动集群datanode：start-dfs.sh
 
+ hadoop shell客户端：
+    hadoop操作文件系统
+        hadoop fs -put fileName     #上传文件到hadoop的文件系统（hdfs）
+                  -get
+        hadoop fs -ls /             #查看hdfs根目录路径文件
+                  -cat
+                  -mkdir /dirName
+        文件其实是存放在hdpdata/dfs/data/current/BP-1184836542-192.168.1.31-1518342045963/current/finalized/subdir0/subdir0下
+        每台机器上都有，当文件大于块（128m）时，会分为几块存储
+
+    HDFS常用命令:
+        ls
+        mkdir
+        moveFromLocal   从本地移动到hdfs
+        moveToLocal     从hdfs移动到本地
+        appendToFile    追加一个文件到已经存在的文件末尾
+        cat
+        tail
+        text            以字符形式打印一个文件的内容
+        chgrp chmod chown 与linux文件系统中的用法一样
+        copyFromLocal或put   从本地文件系统中拷贝文件到sdfs
+        copyToLocal或get     从hdfs拷贝到本地
+        cp mv rm rmdir df
+        du                  统计文件夹的大小信息
+        getmerge            合并下载多个文件
+        count               统计一个指定目录下的文件节点数量
+        setrep              设置hdfs中文件的副本数量（指记录在元数据中，是非确实是这么多数量，要看namenode的数量）
 
 
 
-
-
+ mapreduce 测试：
+    到hadoop-2.7.5/share/hadoop/mapreduce下，执行
+        hadoop jar hadoop-mapreduce-examples-2.7.5.jar wordcount /dir1/ /dir1out
+    统计/dir1/文件夹下各单词的数量输出到/dir1o/下
 
  */
 public class Hadoop_01 {
