@@ -22,17 +22,19 @@ public class Hadoop_02 {
         Configuration conf= new Configuration();
 //        conf.set("fs.defaultFS","hdfs://us1:9000");       //设置后会自动变成hdfs文件系统，否则是本地文件系统
 //        FileSystem fs=FileSystem.get(conf);
+
+        conf.set("dfs.replication","5");    //配置文件加载顺序，会先加载jar包下的，然后加载classpath下的，最后加载代码里的，所以最终是5
         FileSystem fs= FileSystem.get(new URI("hdfs://us1:9000"), conf, "hadoop");
 
         //增
         fs.copyFromLocalFile(new Path("/Users/L/Downloads/t1"),new Path("/Users/L/Downloads/t2"));
 
         //下载
-        fs.copyToLocalFile(new Path("/Users/L/Downloads/t2"),new Path("/Users/L/Downloads/t2_down"));
+//        fs.copyToLocalFile(new Path("/Users/L/Downloads/t2"),new Path("/Users/L/Downloads/t2_down"));
 
 
         //删除
-        fs.delete(new Path("/Users/L/Downloads/t2"),true);
+//        fs.delete(new Path("/Users/L/Downloads/t2"),true);
 
         fs.close();
     }

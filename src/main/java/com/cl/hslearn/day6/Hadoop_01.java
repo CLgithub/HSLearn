@@ -8,8 +8,25 @@ package com.cl.hslearn.day6;
     hadoop提供的功能，利用服务器集群，根据用户的自定义业务逻辑，对海量数据进行分布式处理
     hadoop的核心组件：
         1.HDFS（分布式文件系统）
-            namenode管理datanode，datanode用于存放数据
-                会另带起一个secondaryNameNode(次要的nameNode)
+            namenode存储元数据，用来管理datanode，datanode用于存放数据本身
+            secondaryNameNode(次要的nameNode)
+                namenode的元数据会放在内存中，也会序列化到磁盘fsimage，并且会记录更新日志edits_xxx，
+                edits会很多，为了不影响性能，secondaryNameNode会根据触发条件（可配置）合并（checkpoint）simage与edits得到合并后的元数据,
+                覆盖老的fsimage，删除被合并的edits
+                    思考：
+                        1.namenode如果宕机，hdfs服务是非能正常提供服务
+                            不能
+                        2.如果namenode的磁盘损坏，元数据是否还能恢复？如果能恢复，如何恢复
+                            可以恢复部分，如果数据的日志edits已经被secondaryNameNode合并到fsimage，那么可以拷贝secondaryNameNode
+                            的目录给namenode即可恢复，两者工作目录一样
+                        3.通过以上思考，在配置namenode工作目录时，要注意什么？
+                            要注意把namenode的磁盘配成多块，可以通过配置来完成，具体在hdfs-site.xml中配置
+                            <property>
+                                <name>dfs.name.dir</name>
+                                <value>/home/hadoop/name1,/home/hadoop/name2</value>
+                            </property>
+                            datanode也可以这样配置
+
         2.YARN(运算资源调度系统)
             resourceManager管理nodeManager，nodeManager用来管理运算单元
         3.MAPREDUCE(分布式运算编程框架)
