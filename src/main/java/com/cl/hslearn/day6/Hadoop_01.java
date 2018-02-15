@@ -20,12 +20,12 @@ package com.cl.hslearn.day6;
                             可以恢复部分，如果数据的日志edits已经被secondaryNameNode合并到fsimage，那么可以拷贝secondaryNameNode
                             的目录给namenode即可恢复，两者工作目录一样
                         3.通过以上思考，在配置namenode工作目录时，要注意什么？
-                            要注意把namenode的磁盘配成多块，可以通过配置来完成，具体在hdfs-site.xml中配置
+                            要注意把namenode的磁盘配成多块，可以通过配置来完成，配置后多个磁盘namenode数据一样，具体在hdfs-site.xml中配置
                             <property>
                                 <name>dfs.name.dir</name>
                                 <value>/home/hadoop/name1,/home/hadoop/name2</value>
                             </property>
-                            datanode也可以这样配置
+                            datanode也可以这样配置，但配置后是先存一块磁盘，再存另一块
 
         2.YARN(运算资源调度系统)
             resourceManager管理nodeManager，nodeManager用来管理运算单元
