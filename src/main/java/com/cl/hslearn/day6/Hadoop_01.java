@@ -1,5 +1,8 @@
 package com.cl.hslearn.day6;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.ipc.RPC;
+
 /**
  * Created by L on 18/2/11.
 
@@ -120,6 +123,15 @@ package com.cl.hslearn.day6;
         hadoop jar hadoop-mapreduce-examples-2.7.5.jar wordcount /dir1/ /dir1out
     统计/dir1/文件夹下各单词的数量输出到/dir1o/下
 
+ mapReduce 运算的两个阶段
+    第一个阶段的task并发实例各司其职自己运算完全并行（map task）
+    第二个阶段的task并发实例互不相干，但是他们的数据依赖与上一个阶段的task并发实例的输出（reduce tesk）
+ mapreduce编程模型只能包含一个map阶段和一个reduce阶段，如果用户的业务逻辑非常复杂，可以通过多阶mapreduce程序完成
+
  */
 public class Hadoop_01 {
+    public static void main(String[] args){
+        //hadoop rpc
+//        new RPC.Builder(new Configuration()).setBindAddress("").setPort(8888).setProtocol().setInstance().build().start();
+    }
 }
