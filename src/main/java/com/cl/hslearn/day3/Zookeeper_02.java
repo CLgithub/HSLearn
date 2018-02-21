@@ -1,7 +1,6 @@
 package com.cl.hslearn.day3;
 
 import com.sun.org.apache.xml.internal.security.Init;
-import org.apache.hadoop.conf.Configuration;
 import org.apache.zookeeper.*;
 import org.apache.zookeeper.data.ACL;
 import org.apache.zookeeper.data.Stat;

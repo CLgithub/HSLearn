@@ -38,6 +38,7 @@ public class Hadoop_03 {
      * hadoop jar wordCount1.jar com.cl.hslearn.day6.Hadoop_03 /javaAPI/upload/dnslog/ /javaAPI/upload/dnslogout2
      */
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
+        long l=System.currentTimeMillis();
         Configuration conf=new Configuration();
         conf.set("mapreduce.framework.name","yarn");
         conf.set("yarn.resourcemanager.hostname","us1");
@@ -58,7 +59,7 @@ public class Hadoop_03 {
 //        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/dnslog/log/"));
 //        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
-        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout2"));
+        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout3"));
 //        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         //设置该程序的jar包
@@ -68,6 +69,8 @@ public class Hadoop_03 {
         //将job中配置的相关参数，以及job所在的java类所在的jar包提交给yarn运行
 //        job.submit();
         boolean b = job.waitForCompletion(true);
+        long l2=System.currentTimeMillis();
+        System.out.println(l2-l);
         System.exit(b?0:1);
     }
 

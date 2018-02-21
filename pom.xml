@@ -14,7 +14,6 @@
             <artifactId>junit</artifactId>
             <version>4.12</version>
         </dependency>
-        <!-- zookeeper -->
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>zookeeper</artifactId>
@@ -25,17 +24,9 @@
             <artifactId>slf4j-api</artifactId>
             <version>1.7.25</version>
         </dependency>
-
-
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <version>2.7.5</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-hdfs</artifactId>
             <version>2.7.5</version>
         </dependency>
         <dependency>
@@ -43,9 +34,6 @@
             <artifactId>hadoop-client</artifactId>
             <version>2.7.5</version>
         </dependency>
-
-
-
 
 
 

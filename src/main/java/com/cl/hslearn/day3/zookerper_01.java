@@ -74,4 +74,7 @@ zookeeper命令行客户端使用：
  */
 
 public class zookerper_01 {
+	public static void main(String[] args){
+		System.out.println("中文fdfsfds房贷首付");
+	}
 }
