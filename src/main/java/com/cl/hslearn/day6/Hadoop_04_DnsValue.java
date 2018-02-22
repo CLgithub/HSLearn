@@ -9,9 +9,9 @@ import java.io.IOException;
 public class Hadoop_04_DnsValue implements Writable{
     public void write(DataOutput dataOutput) throws IOException {
         dataOutput.writeInt(sum);
-        dataOutput.write(domain.getBytes());
-        dataOutput.write(timeStr.getBytes());
-        dataOutput.write(sip.getBytes());
+        dataOutput.write((domain+System.lineSeparator()).getBytes());
+        dataOutput.write((timeStr+System.lineSeparator()).getBytes());
+        dataOutput.write((sip+System.lineSeparator()).getBytes());
 
     }
 

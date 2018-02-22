@@ -76,7 +76,7 @@ class DnsLogMap extends Mapper<LongWritable, Text, Text, Hadoop_04_DnsValue> {
             hadoop_04_dnsValue.setTimeStr(split[2]);
             hadoop_04_dnsValue.setSum(1);
             System.out.println(hadoop_04_dnsValue);
-            context.write(new Text(domain), hadoop_04_dnsValue);
+            context.write(new Text(domain+"|"+sip), hadoop_04_dnsValue);
         }
     }
 }
