@@ -1,14 +1,17 @@
 package com.cl.hslearn.day6;
 
 import org.apache.hadoop.io.Writable;
-import sun.jvm.hotspot.debugger.posix.elf.ELFSectionHeader;
 
-import javax.swing.text.DefaultStyledDocument;
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class Hadoopp_04_DnsKey implements Writable {
+public class Hadoop_04_DnsKey implements Writable {
+//    public static void main(String[] args){
+//        Hadoopp_04_DnsKey b=new Hadoopp_04_DnsKey("1","","");
+//        Hadoopp_04_DnsKey a=new Hadoopp_04_DnsKey("1","","");
+//        System.out.println(b.equals(a));
+//    }
     private String domain;
     private String sip;
     private String timeStr;
@@ -18,7 +21,7 @@ public class Hadoopp_04_DnsKey implements Writable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        Hadoopp_04_DnsKey that = (Hadoopp_04_DnsKey) o;
+        Hadoop_04_DnsKey that = (Hadoop_04_DnsKey) o;
 
         if (domain.equals(that.domain)&&sip.equals(that.sip)&&timeStr.equals(that.timeStr))
             return true;
@@ -41,10 +44,10 @@ public class Hadoopp_04_DnsKey implements Writable {
                 '}';
     }
 
-    public Hadoopp_04_DnsKey() {
+    public Hadoop_04_DnsKey() {
     }
 
-    public Hadoopp_04_DnsKey(String domain, String sip, String timeStr) {
+    public Hadoop_04_DnsKey(String domain, String sip, String timeStr) {
         this.domain = domain;
         this.sip = sip;
         this.timeStr = timeStr;
@@ -68,10 +71,9 @@ public class Hadoopp_04_DnsKey implements Writable {
      * @throws IOException
      */
     public void readFields(DataInput dataInput) throws IOException {
-        domain=String.valueOf(dataInput.readByte());
-        sip=String.valueOf(dataInput.readByte());
-        timeStr=String.valueOf(dataInput.readByte());
-
+        domain=dataInput.readLine();
+        sip=dataInput.readLine();
+        timeStr=dataInput.readLine();
     }
 
     public String getDomain() {

@@ -1,9 +1,7 @@
 package com.cl.hslearn.day6;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
@@ -12,9 +10,7 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.net.URI;
 
 
 public class Hadoop_04 {
@@ -29,14 +25,15 @@ public class Hadoop_04 {
         job.setMapperClass(DnsLogMap.class);
         job.setReducerClass(DnsLogReduce.class);
         //设置mapper输出数据的kv类型
-        job.setMapOutputKeyClass(Hadoopp_04_DnsKey.class);
-        job.setMapOutputValueClass(LongWritable.class);
+        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputValueClass(Hadoop_04_DnsValue.class);
         //设置最终输出数据的kv类型
-        job.setOutputKeyClass(Hadoopp_04_DnsKey.class);
-        job.setOutputValueClass(LongWritable.class);
+        job.setOutputKeyClass(Text.class);
+        job.setOutputValueClass(Hadoop_04_DnsValue.class);
 
         //指定job的输入原始文件所在的目录
-        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
+        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/datatest/"));
+//        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
 //        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/dnslog/log/"));
 //        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
@@ -58,7 +55,8 @@ public class Hadoop_04 {
 
 
 // 输出key是符合类型时，key需要自定义,应当重写，输出结果为符合类型时，输出value需要自定义
-class DnsLogMap extends Mapper<LongWritable, Text, Hadoopp_04_DnsKey, LongWritable> {
+
+class DnsLogMap extends Mapper<LongWritable, Text, Text, Hadoop_04_DnsValue> {
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         String line= value.toString();
@@ -66,56 +64,35 @@ class DnsLogMap extends Mapper<LongWritable, Text, Hadoopp_04_DnsKey, LongWritab
         String[] split = line.split("\\|");//切分
         String domain=split[1];
         for(String sip:split[3].split(";")){    //有可能之一一个ip，注意能否切割
-            Hadoopp_04_DnsKey hadoopp_04_dnsKey = new Hadoopp_04_DnsKey();
-            hadoopp_04_dnsKey.setDomain(domain);
-            hadoopp_04_dnsKey.setSip(sip);
-            hadoopp_04_dnsKey.setTimeStr(split[2]);
-            context.write(hadoopp_04_dnsKey,new LongWritable(1));
+//            Hadoop_04_DnsKey hadoopp_04_dnsKey = new Hadoop_04_DnsKey();
+//            hadoopp_04_dnsKey.setDomain(domain);
+//            hadoopp_04_dnsKey.setSip(sip);
+//            hadoopp_04_dnsKey.setTimeStr(split[2]);
+//            System.out.println(hadoopp_04_dnsKey);
+
+            Hadoop_04_DnsValue hadoop_04_dnsValue=new Hadoop_04_DnsValue();
+            hadoop_04_dnsValue.setDomain(domain);
+            hadoop_04_dnsValue.setSip(sip);
+            hadoop_04_dnsValue.setTimeStr(split[2]);
+            hadoop_04_dnsValue.setSum(1);
+            System.out.println(hadoop_04_dnsValue);
+            context.write(new Text(domain), hadoop_04_dnsValue);
         }
     }
 }
 
-class DnsLogReduce extends Reducer<Hadoopp_04_DnsKey,  LongWritable, Hadoopp_04_DnsKey, LongWritable>{
+class DnsLogReduce extends Reducer<Text, Hadoop_04_DnsValue, Text, Hadoop_04_DnsValue>{
     @Override
-    protected void reduce(Hadoopp_04_DnsKey key, Iterable<LongWritable> values, Context context) throws IOException, InterruptedException {
-        long count=0;
-        for(LongWritable l:values){
-            count+=l.get();
+    protected void reduce(Text key, Iterable<Hadoop_04_DnsValue> values, Context context) throws IOException, InterruptedException {
+        int count=0;
+        for(Hadoop_04_DnsValue l:values){
+//            count+=l.get();
+            count+=l.getSum();
+            l.setSum(count);
+            context.write(new Text(key),l);
         }
-        context.write(key,new LongWritable(count));
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
