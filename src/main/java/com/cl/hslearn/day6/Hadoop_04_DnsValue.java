@@ -37,6 +37,7 @@ public class Hadoop_04_DnsValue implements Writable{
                 '}';
     }
 
+
     public Hadoop_04_DnsValue(int sum, String domain, String timeStr, String sip) {
         this.sum = sum;
         this.domain = domain;

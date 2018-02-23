@@ -18,7 +18,15 @@ import java.net.URI;
 
 /**
  * Created by L on 18/2/16.
-
+ * 第一个mapreduce程序计算出文件中每个单词出现的数量
+ *
+ * 在提交之前会先分析数据，形成数据处理规划 job.split，配合job.xml及wc.jar，提交给yarn
+ * yarn根据resourceManager启动mr appMaster，再根据数据处理规划启动mapTask，
+ * mapTask调用InputFormat读取数据kv（偏移量,数据内容），交给我们写的WordcountMapper，WordcountMapper自己的输出交给outputCollector（输出收集器），
+ * 输出到一个文件，这个文件可以分区，更加分区可以交给不同的reduceTask来处理不同分区的数据，结果写到不同文件
+ * mapTask运行完成后myappMaster开始启动reduceTask，reduceTask调用我们写的WordcountReducer，WordcountReducer通过outputFormat将
+ * 结果数据写出
+ *
  */
 public class Hadoop_03 {
 
