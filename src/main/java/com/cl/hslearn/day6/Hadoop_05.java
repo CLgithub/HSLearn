@@ -4,6 +4,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
@@ -11,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 /**
  * 自定义输出结果，统计每个手机好的上下行流量总和
@@ -21,7 +23,6 @@ import java.io.IOException;
  *  如果 maxSize < blockSize 则切片大小 = maxSize
  *  如果 maxSize > blockSize 则切片大小 = blockSize
  *  切片大小至少是最小大小，最大是blockSize大小
- *
  *
  */
 public class Hadoop_05 {
@@ -38,9 +39,9 @@ public class Hadoop_05 {
         job.setReducerClass(Hadoop05_Reduce1.class);
 
         //设置分割类型(数据分区器)
-//        job.setPartitionerClass(DnsDomainPartitionner.class);
-//        //同时指定相应分区数量的reduceTask
-//        job.setNumReduceTasks(DnsDomainPartitionner.domainTypeDict.size()+1);
+        job.setPartitionerClass(Hadoop05_Partitionner.class);
+        //同时指定相应分区数量的reduceTask
+        job.setNumReduceTasks(Hadoop05_Partitionner.pDictMap.size()+1);
 
         //设置mapper输出数据的kv类型
         job.setMapOutputKeyClass(Text.class);
@@ -50,11 +51,11 @@ public class Hadoop_05 {
         job.setOutputValueClass(Hadoop05_Value.class);
 
         //指定job的输入原始文件所在的目录
-        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/datatest/"));
-//        FileInputFormat.setInputPaths(job, new Path(args[0]));
+//        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/datatest/"));
+        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
-        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout5"));
-//        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+//        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout5"));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         //设置该程序的jar包
 //        job.setJar("/home/hadoop/wc.jar");
@@ -96,5 +97,28 @@ class Hadoop05_Reduce1 extends Reducer<Text, Hadoop05_Value, Text, Hadoop05_Valu
         }
         Hadoop05_Value hadoop05_value = new Hadoop05_Value(sumu,sumd);
         context.write(key,hadoop05_value);
+    }
+}
+
+
+/**
+ * 自定义数据处理分区器，两个泛型与mapTask输出类型对应
+ * 数据处理分区器确定了mapTask输出的数据分为几个区存放，每个区会有一个reduceTask去处理，
+ * 从而决定了会产生几个reduceTask，每个reduceTask处理的数据存储到各种的结果文件
+ */
+class Hadoop05_Partitionner extends Partitioner<Text, Hadoop05_Value> {
+
+    public static HashMap<String, Integer> pDictMap=new HashMap<>();
+    static {
+        pDictMap.put("134",0);
+        pDictMap.put("135",1);
+        pDictMap.put("136",2);
+        pDictMap.put("137",3);
+    }
+    @Override
+    public int getPartition(Text text, Hadoop05_Value hadoop05_value, int numPartitions) {
+        String phoneN = text.toString();
+        Integer integer = pDictMap.get(phoneN.substring(0, 3));
+        return integer==null?4:integer;
     }
 }
