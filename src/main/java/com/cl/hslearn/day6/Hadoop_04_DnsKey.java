@@ -1,12 +1,14 @@
 package com.cl.hslearn.day6;
 
+import org.apache.hadoop.io.BinaryComparable;
 import org.apache.hadoop.io.Writable;
+import org.apache.hadoop.io.WritableComparable;
 
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class Hadoop_04_DnsKey implements Writable {
+public class Hadoop_04_DnsKey extends BinaryComparable implements WritableComparable<BinaryComparable> {
 //    public static void main(String[] args){
 //        Hadoopp_04_DnsKey b=new Hadoopp_04_DnsKey("1","","");
 //        Hadoopp_04_DnsKey a=new Hadoopp_04_DnsKey("1","","");
@@ -34,6 +36,20 @@ public class Hadoop_04_DnsKey implements Writable {
 //        return timeStr != null ? timeStr.equals(that.timeStr) : that.timeStr == null;
     }
 
+    @Override
+    public int compareTo(BinaryComparable other) {
+        Hadoop_04_DnsKey hadoop_04_dnsKey= (Hadoop_04_DnsKey) other;
+        String domain = hadoop_04_dnsKey.getDomain();
+        String sip = hadoop_04_dnsKey.getSip();
+        String timeStr = hadoop_04_dnsKey.getTimeStr();
+        if(domain.equals(this.domain)
+                &&sip.equals(this.sip)
+                &&timeStr.equals(this.timeStr)){
+            return 0;
+        }else {
+            return 1;
+        }
+    }
 
     @Override
     public String toString() {
@@ -45,6 +61,16 @@ public class Hadoop_04_DnsKey implements Writable {
     }
 
     public Hadoop_04_DnsKey() {
+    }
+
+    @Override
+    public int getLength() {
+        return this.getLength();
+    }
+
+    @Override
+    public byte[] getBytes() {
+        return new byte[0];
     }
 
     public Hadoop_04_DnsKey(String domain, String sip, String timeStr) {
@@ -60,9 +86,9 @@ public class Hadoop_04_DnsKey implements Writable {
      * @throws IOException
      */
     public void write(DataOutput dataOutput) throws IOException {
-        dataOutput.writeBytes(domain);
-        dataOutput.writeBytes(sip);
-        dataOutput.writeBytes(timeStr);
+        dataOutput.writeBytes(domain+System.lineSeparator());
+        dataOutput.writeBytes(sip+System.lineSeparator());
+        dataOutput.writeBytes(timeStr+System.lineSeparator());
     }
 
     /**

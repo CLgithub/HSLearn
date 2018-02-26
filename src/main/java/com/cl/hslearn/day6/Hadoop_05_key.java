@@ -26,18 +26,20 @@ public class Hadoop_05_key extends BinaryComparable implements WritableComparabl
 
     /**
      * 用于按key排序，但是这样暂时无法将相同电话☎️号码合并在一起，因为不知道在哪判断两个key是否相同，equals并没有被调用
+     * 用于排序或比较两个key是否相同，当分类输出，两个电话号码相同的数据考得比较近时，才会有两条数据进行之间比较，才能合并
      * @param o
      * @return
      */
     @Override
     public int compareTo(BinaryComparable o) {
         Hadoop_05_key a=(Hadoop_05_key) o;
-        if(a.getPhoneN().equals(this.phoneN)){
+        String phoneN = a.getPhoneN();
+        int i = phoneN.compareTo(this.phoneN);
+        long l = this.sumNum - a.getSumNum();
+        if(i==0){   //如果电话号码相同  但是如果不分类，两个相同的很难在一起比较
             System.out.println(a+"-"+this+":0");
-            return 0;
-        }else{
-//            return -1;
-            long l = this.sumNum - a.getSumNum();
+            return 0;   //则两个数据合并
+        } else{  //否则    按照流量排序
             if(l>0){
                 System.out.println(a+"-"+this+":-1");
                 return -1;
@@ -48,7 +50,6 @@ public class Hadoop_05_key extends BinaryComparable implements WritableComparabl
                 System.out.println(a+"-"+this+":2");
                 return 1;
             }
-
         }
     }
 

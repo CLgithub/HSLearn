@@ -33,12 +33,12 @@ public class Hadoop_04 {
         job.setReducerClass(DnsLogReduce.class);
 
         //设置分割类型(数据分区器)
-        job.setPartitionerClass(DnsDomainPartitionner.class);
-        //同时指定相应分区数量的reduceTask
-        job.setNumReduceTasks(DnsDomainPartitionner.domainTypeDict.size()+1);
+//        job.setPartitionerClass(DnsDomainPartitionner.class);
+//        //同时指定相应分区数量的reduceTask
+//        job.setNumReduceTasks(DnsDomainPartitionner.domainTypeDict.size()+1);
 
         //设置mapper输出数据的kv类型
-        job.setMapOutputKeyClass(Text.class);
+        job.setMapOutputKeyClass(Hadoop_04_DnsKey.class);
         job.setMapOutputValueClass(Hadoop_04_DnsValue.class);
         //设置最终输出数据的kv类型
         job.setOutputKeyClass(Text.class);
@@ -47,11 +47,12 @@ public class Hadoop_04 {
         //指定job的输入原始文件所在的目录
 //        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/datatest/"));
 //        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
+        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog2/"));
 //        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/dnslog/log/"));
-        FileInputFormat.setInputPaths(job, new Path(args[0]));
+//        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
-//        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout4"));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout4"));
+//        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         //设置该程序的jar包
 //        job.setJar("/home/hadoop/wc.jar");
@@ -68,7 +69,7 @@ public class Hadoop_04 {
 
 
 // 输出key是符合类型时，key需要自定义,应当重写，输出结果为符合类型时，输出value需要自定义
-class DnsLogMap extends Mapper<LongWritable, Text, Text, Hadoop_04_DnsValue> {
+class DnsLogMap extends Mapper<LongWritable, Text, Hadoop_04_DnsKey, Hadoop_04_DnsValue> {
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         String line= value.toString();
@@ -76,10 +77,10 @@ class DnsLogMap extends Mapper<LongWritable, Text, Text, Hadoop_04_DnsValue> {
         String[] split = line.split("\\|");//切分
         String domain=split[1];
         for(String sip:split[3].split(";")){    //有可能之一一个ip，注意能否切割
-//            Hadoop_04_DnsKey hadoopp_04_dnsKey = new Hadoop_04_DnsKey();
-//            hadoopp_04_dnsKey.setDomain(domain);
-//            hadoopp_04_dnsKey.setSip(sip);
-//            hadoopp_04_dnsKey.setTimeStr(split[2]);
+            Hadoop_04_DnsKey hadoopp_04_dnsKey = new Hadoop_04_DnsKey();
+            hadoopp_04_dnsKey.setDomain(domain);
+            hadoopp_04_dnsKey.setSip(sip);
+            hadoopp_04_dnsKey.setTimeStr(split[2]);
 //            System.out.println(hadoopp_04_dnsKey);
 
             Hadoop_04_DnsValue hadoop_04_dnsValue=new Hadoop_04_DnsValue();
@@ -88,23 +89,23 @@ class DnsLogMap extends Mapper<LongWritable, Text, Text, Hadoop_04_DnsValue> {
             hadoop_04_dnsValue.setTimeStr(split[2]);
             hadoop_04_dnsValue.setSum(1);
 //            System.out.println(hadoop_04_dnsValue);
-//            context.write(new Text(domain+"|"+sip), hadoop_04_dnsValue);
-            context.write(new Text(domain.toLowerCase()), hadoop_04_dnsValue);
+//            context.write(new Text(domain), hadoop_04_dnsValue);
+            context.write(hadoopp_04_dnsKey, hadoop_04_dnsValue);
         }
     }
 }
 
 //class DnsLogReduce extends Reducer<Text, Hadoop_04_DnsValue, Text, Hadoop_04_DnsValue>{
-class DnsLogReduce extends Reducer<Text, Hadoop_04_DnsValue, Text, LongWritable>{
+class DnsLogReduce extends Reducer<Hadoop_04_DnsKey, Hadoop_04_DnsValue, Text, LongWritable>{
     @Override
-    protected void reduce(Text key, Iterable<Hadoop_04_DnsValue> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Hadoop_04_DnsKey key, Iterable<Hadoop_04_DnsValue> values, Context context) throws IOException, InterruptedException {
         int count=0;
         for(Hadoop_04_DnsValue l:values){
 //            count+=l.get();
             count+=l.getSum();
-            l.setSum(count);
+//            l.setSum(count);
         }
-        context.write(new Text(key),new LongWritable(count));
+        context.write(new Text(key.toString()),new LongWritable(count));
     }
 }
 
