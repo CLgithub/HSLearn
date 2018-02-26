@@ -39,23 +39,23 @@ public class Hadoop_05 {
         job.setReducerClass(Hadoop05_Reduce1.class);
 
         //设置分割类型(数据分区器)
-        job.setPartitionerClass(Hadoop05_Partitionner.class);
-        //同时指定相应分区数量的reduceTask
-        job.setNumReduceTasks(Hadoop05_Partitionner.pDictMap.size()+1);
+//        job.setPartitionerClass(Hadoop05_Partitionner.class);
+//        //同时指定相应分区数量的reduceTask
+//        job.setNumReduceTasks(Hadoop05_Partitionner.pDictMap.size()+1);
 
         //设置mapper输出数据的kv类型
-        job.setMapOutputKeyClass(Text.class);
-        job.setMapOutputValueClass(Hadoop05_Value.class);
+        job.setMapOutputKeyClass(Hadoop_05_key.class);
+        job.setMapOutputValueClass(Hadoop_05_Value.class);
         //设置最终输出数据的kv类型
         job.setOutputKeyClass(Text.class);
-        job.setOutputValueClass(Hadoop05_Value.class);
+        job.setOutputValueClass(Text.class);
 
         //指定job的输入原始文件所在的目录
-//        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/datatest/"));
-        FileInputFormat.setInputPaths(job, new Path(args[0]));
+        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/datatest/"));
+//        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
-//        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout5"));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout5"));
+//        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         //设置该程序的jar包
 //        job.setJar("/home/hadoop/wc.jar");
@@ -72,8 +72,7 @@ public class Hadoop_05 {
 
 }
 
-class Hadoop05_Map1 extends Mapper<LongWritable, Text, Text, Hadoop05_Value>{
-
+class Hadoop05_Map1 extends Mapper<LongWritable, Text, Hadoop_05_key, Hadoop_05_Value>{
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         String line = value.toString();
@@ -81,22 +80,25 @@ class Hadoop05_Map1 extends Mapper<LongWritable, Text, Text, Hadoop05_Value>{
         String phoneNbr=split[1];
         long upData=Long.parseLong(split[split.length-3]);
         long dData=Long.parseLong(split[split.length-2]);
-        Hadoop05_Value hadoop05_value = new Hadoop05_Value(upData,dData);
-        context.write(new Text(phoneNbr),hadoop05_value);
+        Hadoop_05_Value hadoop05_value = new Hadoop_05_Value(upData,dData);
+        Hadoop_05_key hadoop_05_key = new Hadoop_05_key(phoneNbr,upData+dData);
+//        hadoop_05_key.setPhoneN(phoneNbr);
+        context.write(hadoop_05_key,hadoop05_value);
     }
 }
 
-class Hadoop05_Reduce1 extends Reducer<Text, Hadoop05_Value, Text, Hadoop05_Value>{
+class Hadoop05_Reduce1 extends Reducer<Hadoop_05_key, Hadoop_05_Value, Text, Text>{
     @Override
-    protected void reduce(Text key, Iterable<Hadoop05_Value> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Hadoop_05_key key, Iterable<Hadoop_05_Value> values, Context context) throws IOException, InterruptedException {
         long sumu=0;
         long sumd=0;
-        for(Hadoop05_Value hadoop05_value:values){
+        for(Hadoop_05_Value hadoop05_value:values){
             sumd += hadoop05_value.getDownNumber();
             sumu += hadoop05_value.getUpNumber();
         }
-        Hadoop05_Value hadoop05_value = new Hadoop05_Value(sumu,sumd);
-        context.write(key,hadoop05_value);
+        Hadoop_05_Value hadoop05_value = new Hadoop_05_Value(sumu,sumd);
+        key.setSumNum(hadoop05_value.getSumNumber());
+        context.write(new Text(key.toString()),new Text(hadoop05_value.toString()));
     }
 }
 
@@ -106,7 +108,7 @@ class Hadoop05_Reduce1 extends Reducer<Text, Hadoop05_Value, Text, Hadoop05_Valu
  * 数据处理分区器确定了mapTask输出的数据分为几个区存放，每个区会有一个reduceTask去处理，
  * 从而决定了会产生几个reduceTask，每个reduceTask处理的数据存储到各种的结果文件
  */
-class Hadoop05_Partitionner extends Partitioner<Text, Hadoop05_Value> {
+class Hadoop05_Partitionner extends Partitioner<Text, Hadoop_05_Value> {
 
     public static HashMap<String, Integer> pDictMap=new HashMap<>();
     static {
@@ -116,7 +118,7 @@ class Hadoop05_Partitionner extends Partitioner<Text, Hadoop05_Value> {
         pDictMap.put("137",3);
     }
     @Override
-    public int getPartition(Text text, Hadoop05_Value hadoop05_value, int numPartitions) {
+    public int getPartition(Text text, Hadoop_05_Value hadoop05_value, int numPartitions) {
         String phoneN = text.toString();
         Integer integer = pDictMap.get(phoneN.substring(0, 3));
         return integer==null?4:integer;

@@ -22,7 +22,7 @@
 1363157993055 	13560436666	C4-17-FE-BA-DE-D9:CMCC	120.196.100.99			18	15	1116	954	200
 
 
- 作业：1/统计每一个用户（手机号）所耗费的总上行流量、下行流量，总流量    (_04)
+ 作业：1/统计每一个用户（手机号）所耗费的总上行流量、下行流量，总流量    (_05)
  map
  读一行，切分字段
  抽取手机号，上行流量 下行流量
@@ -30,30 +30,18 @@
 
  reduce
 
- 
- 
- 
+
  2/得出上题结果的基础之上再加一个需求：将统计结果按照总流量倒序排序
- 
- 
- 
- 
- 
- 
- 
- 
+
  3/将统计结果按照手机归属地不同省份输出到不同文件中
   map
   读一行，切分字段
  抽取手机号，上行流量 下行流量
  context.write(手机号,bean)
- 
- 
+
  map输出的数据要分成6个区
  重写partitioner，让相同归属地的号码返回相同的分区号int
- 
- 
- 
+
  
 6省    跑6个reduce task 
 reduce
@@ -61,29 +49,26 @@ reduce
 遍历，累加
 输出
  
+
  
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
- 
+13480253104	Hadoop05_Value{upNumber=180, downNumber=180, sumNumber=360}
+13502468823	Hadoop05_Value{upNumber=7335, downNumber=110349, sumNumber=117684}
+13560436666	Hadoop05_Value{upNumber=1116, downNumber=954, sumNumber=2070}
+13560439658	Hadoop05_Value{upNumber=2034, downNumber=5892, sumNumber=7926}
+13602846565	Hadoop05_Value{upNumber=1938, downNumber=2910, sumNumber=4848}
+13660577991	Hadoop05_Value{upNumber=6960, downNumber=690, sumNumber=7650}
+13719199419	Hadoop05_Value{upNumber=240, downNumber=0, sumNumber=240}
+13726230503	Hadoop05_Value{upNumber=2481, downNumber=24681, sumNumber=27162}
+13726238888	Hadoop05_Value{upNumber=2481, downNumber=24681, sumNumber=27162}
+13760778710	Hadoop05_Value{upNumber=120, downNumber=120, sumNumber=240}
+13826544101	Hadoop05_Value{upNumber=264, downNumber=0, sumNumber=264}
+13922314466	Hadoop05_Value{upNumber=3008, downNumber=3720, sumNumber=6728}
+13925057413	Hadoop05_Value{upNumber=11058, downNumber=48243, sumNumber=59301}
+13926251106	Hadoop05_Value{upNumber=240, downNumber=0, sumNumber=240}
+13926435656	Hadoop05_Value{upNumber=132, downNumber=1512, sumNumber=1644}
+15013685858	Hadoop05_Value{upNumber=3659, downNumber=3538, sumNumber=7197}
+15920133257	Hadoop05_Value{upNumber=3156, downNumber=2936, sumNumber=6092}
+15989002119	Hadoop05_Value{upNumber=1938, downNumber=180, sumNumber=2118}
+18211575961	Hadoop05_Value{upNumber=1527, downNumber=2106, sumNumber=3633}
+18320173382	Hadoop05_Value{upNumber=9531, downNumber=2412, sumNumber=11943}
+84138413	Hadoop05_Value{upNumber=4116, downNumber=1432, sumNumber=5548}

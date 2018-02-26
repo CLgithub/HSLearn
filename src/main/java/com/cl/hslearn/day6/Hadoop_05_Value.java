@@ -6,18 +6,18 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class Hadoop05_Value implements Writable {
+public class Hadoop_05_Value implements Writable,Comparable<Hadoop_05_Value> {
     private long upNumber;
     private long downNumber;
     private long sumNumber;
 
-    public Hadoop05_Value(long upNumber, long downNumber) {
+    public Hadoop_05_Value(long upNumber, long downNumber) {
         this.upNumber = upNumber;
         this.downNumber = downNumber;
         this.sumNumber = upNumber+downNumber;
     }
 
-    public Hadoop05_Value() {
+    public Hadoop_05_Value() {
     }
 
     @Override
@@ -63,5 +63,11 @@ public class Hadoop05_Value implements Writable {
         upNumber=dataInput.readLong();
         downNumber=dataInput.readLong();
         sumNumber=dataInput.readLong();
+    }
+
+    @Override
+    public int compareTo(Hadoop_05_Value o) {
+        Long l = this.sumNumber - o.getSumNumber();
+        return l.intValue();
     }
 }
