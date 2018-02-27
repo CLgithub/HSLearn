@@ -11,8 +11,12 @@ import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 
 /**
  * 自定义输出结果，统计每个手机好的上下行流量总和
@@ -42,19 +46,22 @@ public class Hadoop_05 {
 //        job.setPartitionerClass(Hadoop05_Partitionner.class);
 //        //同时指定相应分区数量的reduceTask
 //        job.setNumReduceTasks(Hadoop05_Partitionner.pDictMap.size()+1);
+////        job.setNumReduceTasks(1);
 
         //设置mapper输出数据的kv类型
-        job.setMapOutputKeyClass(Hadoop_05_key.class);
+        job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(Hadoop_05_Value.class);
         //设置最终输出数据的kv类型
-        job.setOutputKeyClass(Hadoop_05_key.class);
+        job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Hadoop_05_Value.class);
 
         //指定job的输入原始文件所在的目录
         FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/datatest/"));
 //        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
-        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout5"));
+        String path="/Users/L/Downloads/dnslogout5";
+//        String path="hdfs://us1:9000/Users/L/Downloads/dnslogout5";
+        FileOutputFormat.setOutputPath(job, new Path(path));
 //        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         //设置该程序的jar包
@@ -72,7 +79,9 @@ public class Hadoop_05 {
 
 }
 
-class Hadoop05_Map1 extends Mapper<LongWritable, Text, Hadoop_05_key, Hadoop_05_Value>{
+class Hadoop05_Map1 extends Mapper<LongWritable, Text, Text, Hadoop_05_Value>{
+    Text text=new Text();
+    Hadoop_05_Value hadoop05_value = new Hadoop_05_Value();
     @Override
     protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
         String line = value.toString();
@@ -80,26 +89,30 @@ class Hadoop05_Map1 extends Mapper<LongWritable, Text, Hadoop_05_key, Hadoop_05_
         String phoneNbr=split[1];
         long upData=Long.parseLong(split[split.length-3]);
         long dData=Long.parseLong(split[split.length-2]);
-        Hadoop_05_Value hadoop05_value = new Hadoop_05_Value(upData,dData);
-        Hadoop_05_key hadoop_05_key = new Hadoop_05_key(phoneNbr,upData+dData);
+//        Hadoop_05_key hadoop_05_key = new Hadoop_05_key(phoneNbr,upData+dData);
 //        hadoop_05_key.setPhoneN(phoneNbr);
-        context.write(hadoop_05_key,hadoop05_value);
+        hadoop05_value.set(upData,dData);
+        text.set(phoneNbr);
+        context.write(text,hadoop05_value);
     }
 }
 
-class Hadoop05_Reduce1 extends Reducer<Hadoop_05_key, Hadoop_05_Value, Hadoop_05_key, Hadoop_05_Value>{
+class Hadoop05_Reduce1 extends Reducer<Text, Hadoop_05_Value, Text, Hadoop_05_Value>{
+    Hadoop_05_Value hadoop05_value = new Hadoop_05_Value();
     @Override
-    protected void reduce(Hadoop_05_key key, Iterable<Hadoop_05_Value> values, Context context) throws IOException, InterruptedException {
+    protected void reduce(Text key, Iterable<Hadoop_05_Value> values, Context context) throws IOException, InterruptedException {
         long sumu=0;
         long sumd=0;
         for(Hadoop_05_Value hadoop05_value:values){
             sumd += hadoop05_value.getDownNumber();
             sumu += hadoop05_value.getUpNumber();
         }
-        Hadoop_05_Value hadoop05_value = new Hadoop_05_Value(sumu,sumd);
-        key.setSumNum(hadoop05_value.getSumNumber());
+//        key.setSumNum(hadoop05_value.getSumNumber());
+        hadoop05_value.set(sumu,sumd);
         context.write(key,hadoop05_value);
     }
+
+
 }
 
 
@@ -113,8 +126,8 @@ class Hadoop05_Partitionner extends Partitioner<Hadoop_05_key, Hadoop_05_Value> 
     public static HashMap<String, Integer> pDictMap=new HashMap<>();
     static {
         pDictMap.put("134",0);
-        pDictMap.put("138",1);
-//        pDictMap.put("135",1);  //当这样分类时，两个相同key的数据考得比较近，才能之间比较，才能合并
+//        pDictMap.put("138",1);
+        pDictMap.put("135",1);  //当这样分类时，两个相同key的数据考得比较近，才能之间比较，才能合并
         pDictMap.put("136",2);
         pDictMap.put("137",3);
     }
