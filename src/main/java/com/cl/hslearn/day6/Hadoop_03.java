@@ -61,6 +61,8 @@ public class Hadoop_03 {
         //设置maptask和reducertask使用的业务类
         job.setMapperClass(WordcountMapper.class);
         job.setReducerClass(WordcountReducer.class);
+        //指定combiner在map到reduce之间先做聚合，由于业务逻辑和reduce一样切使用后不会影响业务逻辑正确性，所有直接使用reduce
+        job.setCombinerClass(WordcountReducer.class);
         //设置mapper输出数据的kv类型
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);

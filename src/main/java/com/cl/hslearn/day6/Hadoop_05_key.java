@@ -27,6 +27,7 @@ public class Hadoop_05_key extends BinaryComparable implements WritableComparabl
     /**
      * 用于按key排序，但是这样暂时无法将相同电话☎️号码合并在一起，因为不知道在哪判断两个key是否相同，equals并没有被调用
      * 用于排序或比较两个key是否相同，当分类输出，两个电话号码相同的数据考得比较近时，才会有两条数据进行之间比较，才能合并
+     * 比较两个key是否相同应该是用GroupingComparaor(nextKey)
      * @param o
      * @return
      */
