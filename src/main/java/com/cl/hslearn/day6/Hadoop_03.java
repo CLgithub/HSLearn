@@ -9,6 +9,8 @@ import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.CombineFileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
@@ -63,6 +65,7 @@ public class Hadoop_03 {
         job.setReducerClass(WordcountReducer.class);
         //指定combiner在map到reduce之间先做聚合，由于业务逻辑和reduce一样切使用后不会影响业务逻辑正确性，所有直接使用reduce
         job.setCombinerClass(WordcountReducer.class);
+
         //设置mapper输出数据的kv类型
         job.setMapOutputKeyClass(Text.class);
         job.setMapOutputValueClass(IntWritable.class);
@@ -70,13 +73,21 @@ public class Hadoop_03 {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(IntWritable.class);
 
+        //如果文件小而多时，可以采用另一种inputformat（combineFileOutputFormat）来将小文件在逻辑上规划到一个切片中
+        job.setInputFormatClass(CombineTextInputFormat.class);//默认使用textInputFormat
+        CombineTextInputFormat.setMaxInputSplitSize(job,1048576*256);   //256m
+        CombineTextInputFormat.setMinInputSplitSize(job,2097152);   //2m
+
+        //设置切片大小
+//        FileInputFormat.setMaxInputSplitSize(job,1048576*128);
+//        FileInputFormat.setMinInputSplitSize(job,1);  //1k
         //指定job的输入原始文件所在的目录
-        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
+//        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
 //        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/dnslog/log/"));
-//        FileInputFormat.setInputPaths(job, new Path(args[0]));
+        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
-        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout3"));
-//        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+//        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout3"));
+        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         //设置该程序的jar包
 //        job.setJar("/home/hadoop/wc.jar");
