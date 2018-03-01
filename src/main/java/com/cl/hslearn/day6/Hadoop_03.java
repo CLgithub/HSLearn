@@ -58,6 +58,8 @@ public class Hadoop_03 {
         Configuration conf=new Configuration();
         conf.set("mapreduce.framework.name","yarn");
         conf.set("yarn.resourcemanager.hostname","us1");
+//        conf.set("yarn.defaultFS","file:///");
+//        conf.set("yarn.defaultFS","hdfs://us1:9000/");
         Job job= Job.getInstance();
 
         //设置maptask和reducertask使用的业务类
@@ -82,12 +84,12 @@ public class Hadoop_03 {
 //        FileInputFormat.setMaxInputSplitSize(job,1048576*128);
 //        FileInputFormat.setMinInputSplitSize(job,1);  //1k
         //指定job的输入原始文件所在的目录
-//        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
-//        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/dnslog/log/"));
-        FileInputFormat.setInputPaths(job, new Path(args[0]));
+        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
+//        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/t3"));
+//        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
-//        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout3"));
-        FileOutputFormat.setOutputPath(job, new Path(args[1]));
+        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/dnslogout3"));
+//        FileOutputFormat.setOutputPath(job, new Path(args[1]));
 
         //设置该程序的jar包
 //        job.setJar("/home/hadoop/wc.jar");
