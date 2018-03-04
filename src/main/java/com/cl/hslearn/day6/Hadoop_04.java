@@ -23,9 +23,9 @@ import java.util.HashMap;
 public class Hadoop_04 {
     public static void main(String[] args) throws Exception {
         long l=System.currentTimeMillis();
-        Configuration conf=new Configuration();
-        conf.set("mapreduce.framework.name","yarn");
-        conf.set("yarn.resourcemanager.hostname","us1");
+//        Configuration conf=new Configuration();
+//        conf.set("mapreduce.framework.name","yarn");
+//        conf.set("yarn.resourcemanager.hostname","us1");
         Job job= Job.getInstance();
 
         //设置maptask和reducertask使用的业务类

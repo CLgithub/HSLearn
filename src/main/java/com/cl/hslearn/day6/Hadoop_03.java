@@ -56,11 +56,12 @@ public class Hadoop_03 {
     public static void main(String[] args) throws IOException, ClassNotFoundException, InterruptedException {
         long l=System.currentTimeMillis();
         Configuration conf=new Configuration();
-        conf.set("mapreduce.framework.name","yarn");
-        conf.set("yarn.resourcemanager.hostname","us1");
+        //设置运行模式
+        conf.set("mapreduce.framework.name","yarn");    //yarn 或 local
 //        conf.set("yarn.defaultFS","file:///");
-//        conf.set("yarn.defaultFS","hdfs://us1:9000/");
-        Job job= Job.getInstance();
+        conf.set("fs.defaultFS","hdfs://us1:9000/");
+        conf.set("yarn.resourcemanager.hostname","us1");
+        Job job= Job.getInstance(conf);
 
         //设置maptask和reducertask使用的业务类
         job.setMapperClass(WordcountMapper.class);
@@ -84,7 +85,8 @@ public class Hadoop_03 {
 //        FileInputFormat.setMaxInputSplitSize(job,1048576*128);
 //        FileInputFormat.setMinInputSplitSize(job,1);  //1k
         //指定job的输入原始文件所在的目录
-        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
+//        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
+        FileInputFormat.setInputPaths(job, new Path("/javaAPI/upload/dnslog/"));
 //        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/t3"));
 //        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
@@ -93,7 +95,8 @@ public class Hadoop_03 {
 
         //设置该程序的jar包
 //        job.setJar("/home/hadoop/wc.jar");
-        job.setJarByClass(Hadoop_03.class);     //根据类路径来设置
+        job.setJar("/Users/l/develop/clProject/HSLearn/out/artifacts/HSLearn/HSLearn.jar");
+//        job.setJarByClass(Hadoop_03.class);     //根据类路径来设置
 
         //将job中配置的相关参数，以及job所在的java类所在的jar包提交给yarn运行
 //        job.submit();
