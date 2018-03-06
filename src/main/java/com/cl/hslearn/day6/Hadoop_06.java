@@ -52,7 +52,12 @@ public class Hadoop_06 {
     }
     //利用缓存文件，在map task中实现join，不需要reduce
     public static void task2() throws Exception{
-        Job job= Job.getInstance();
+        long l1=System.currentTimeMillis();
+        Configuration conf=new Configuration();
+        conf.set("mapreduce.framework.name","yarn");    //yarn 或 local
+        conf.set("fs.defaultFS","hdfs://us1:9000/");    //当文件系统设置为hdfs后，要是设置用户，在环境变量里设置export HADOOP_USER_NAME="hadoop"
+        conf.set("yarn.resourcemanager.hostname","us1");
+        Job job= Job.getInstance(conf);
         //设置maptask和reducertask使用的业务类
         job.setMapperClass(Hadoop06_Map2.class);
 //        job.setReducerClass(Hadoop06_Reduce1.class);
@@ -69,24 +74,29 @@ public class Hadoop_06 {
 //        job.addCacheArchive();        //加载压缩文件到task运行节点的工作目录
 //        job.addCacheFile();           //加载普通文件到task运行节点的工作目录
 
-        job.addCacheFile(new URI("file:///Users/L/Downloads/t_product"));    //将产品信息加载到maptask工作目录
+//        job.addCacheFile(new URI("file:///Users/L/Downloads/t_product"));    //将产品信息加载到maptask工作目录
+        job.addCacheFile(new URI("/hadoop06/t_product"));    //将产品信息加载到maptask工作目录
+
+        job.setNumReduceTasks(0);   //不需要reduce，设置为0提高效率
 
 
         //指定job的输入原始文件所在的目录
-//        FileInputFormat.setInputPaths(job, new Path("/hadoop06/"));
-        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/hadoop06/"));
+        FileInputFormat.setInputPaths(job, new Path("/hadoop06/"));
+//        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/hadoop06/"));
         //指定job的输出结果
-//        FileOutputFormat.setOutputPath(job, new Path("/hadoop06out_1"));
-        FileOutputFormat.setOutputPath(job, new Path("file:///Users/L/Downloads/hadoop06out_2"));
+        FileOutputFormat.setOutputPath(job, new Path("/hadoop06out_5"));
+//        FileOutputFormat.setOutputPath(job, new Path("file:///Users/L/Downloads/hadoop06out_2"));
 
         //设置该程序的jar包
 //        job.setJar("/home/hadoop/wc.jar");
-//        job.setJar("/Users/l/develop/clProject/HSLearn/out/artifacts/HSLearn/HSLearn.jar");     //集群运行时必须指定明确路径
-        job.setJarByClass(Hadoop_06.class);     //根据类路径来设置    本地运行时可以通过类路径查找
+        job.setJar("/Users/l/develop/clProject/HSLearn/out/artifacts/HSLearn/HSLearn.jar");     //集群运行时必须指定明确路径
+//        job.setJarByClass(Hadoop_06.class);     //根据类路径来设置    本地运行时可以通过类路径查找
 
         //将job中配置的相关参数，以及job所在的java类所在的jar包提交给yarn运行
 //        job.submit();
         boolean b = job.waitForCompletion(true);
+        long l2=System.currentTimeMillis();
+        System.out.println(l2-l1);
         System.exit(b?0:1);
     }
 
@@ -211,8 +221,8 @@ class Hadoop06_Map2 extends Mapper<LongWritable, Text, Text, NullWritable>{
     @Override
     protected void setup(Context context) throws IOException, InterruptedException {
         //也可以直接写文件名，因为就在工作目录下 /tmp/hadoop-l/mapred/local/1520243595996/t_product    ,但不知为何突然不行了，成功过一次
-//        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(new FileInputStream("t_product"),"utf-8"));
-        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(new FileInputStream(new File(context.getCacheFiles()[0])),"utf-8"));
+        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(new FileInputStream("t_product"),"utf-8"));
+//        BufferedReader bufferedReader=new BufferedReader(new InputStreamReader(new FileInputStream(new File(context.getCacheFiles()[0])),"utf-8"));
         String line="";
         while((line=bufferedReader.readLine())!=null){
             Hadoop06_bean1 hadoop06_bean1 = new Hadoop06_bean1();
