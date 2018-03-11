@@ -2,9 +2,7 @@ package com.cl.hslearn.day6;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -14,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.IOException;
 import java.security.Key;
+import java.util.GregorianCalendar;
 import java.util.HashMap;
 
 
@@ -44,6 +43,8 @@ public class Hadoop_04 {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(LongWritable.class);
 
+        job.setGroupingComparatorClass(Hadoop04GroupingCom.class);
+
         //指定job的输入原始文件所在的目录
 //        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/datatest/"));
 //        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/javaAPI/upload/dnslog/"));
@@ -64,6 +65,23 @@ public class Hadoop_04 {
         long l2=System.currentTimeMillis();
         System.out.println(l2-l);
         System.exit(b?0:1);
+    }
+}
+
+class Hadoop04GroupingCom extends WritableComparator{
+    public Hadoop04GroupingCom() {
+        super(Hadoop_04_DnsKey.class,true); //true代表是否实例化
+    }
+
+    @Override
+    public int compare(WritableComparable a, WritableComparable b) {
+        Hadoop_04_DnsKey k1= (Hadoop_04_DnsKey) a;
+        Hadoop_04_DnsKey k2= (Hadoop_04_DnsKey) b;
+        if(k1.getDomain().equals(k1.getDomain())&&k1.getSip().equals(k2.getSip())&&k1.getTimeStr().equals(k2.getTimeStr())){
+            return 0;
+        }else{
+            return 1;
+        }
     }
 }
 

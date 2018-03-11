@@ -164,7 +164,7 @@ class Hadoop09KeyBean implements WritableComparable {
 
 }
 
-class Hadoop09GroupingCompatator extends WritableComparator{
+class Hadoop09GroupingCompatator extends WritableComparator {
     public Hadoop09GroupingCompatator() {
         super(Hadoop09KeyBean.class, true);
     }

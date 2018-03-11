@@ -40,7 +40,7 @@ public class Hadoop_05_sort {
         job.setOutputValueClass(Hadoop_05_Value.class);
 
         //指定job的输入原始文件所在的目录
-        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/Users/L/Downloads/dnslogout5/"));
+        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/dnslogout5/"));
 //        FileInputFormat.setInputPaths(job, new Path(args[0]));
         //指定job的输出结果
         String path="/Users/L/Downloads/dnslogout5s";

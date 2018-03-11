@@ -8,7 +8,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-public class Hadoop_04_DnsKey extends BinaryComparable implements WritableComparable<BinaryComparable> {
+public class Hadoop_04_DnsKey implements WritableComparable {
 //    public static void main(String[] args){
 //        Hadoopp_04_DnsKey b=new Hadoopp_04_DnsKey("1","","");
 //        Hadoopp_04_DnsKey a=new Hadoopp_04_DnsKey("1","","");
@@ -18,27 +18,28 @@ public class Hadoop_04_DnsKey extends BinaryComparable implements WritableCompar
     private String sip;
     private String timeStr;
 
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) return true;
+//        if (o == null || getClass() != o.getClass()) return false;
+//
+//        Hadoop_04_DnsKey that = (Hadoop_04_DnsKey) o;
+//
+//        if (domain.equals(that.domain)&&sip.equals(that.sip)&&timeStr.equals(that.timeStr))
+//            return true;
+//        else
+//            return false;
+//
+//
+////        if (domain != null ? !domain.equals(that.domain) : that.domain != null) return false;
+////        if (sip != null ? !sip.equals(that.sip) : that.sip != null) return false;
+////        return timeStr != null ? timeStr.equals(that.timeStr) : that.timeStr == null;
+//    }
+
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Hadoop_04_DnsKey that = (Hadoop_04_DnsKey) o;
-
-        if (domain.equals(that.domain)&&sip.equals(that.sip)&&timeStr.equals(that.timeStr))
-            return true;
-        else
-            return false;
-
-
-//        if (domain != null ? !domain.equals(that.domain) : that.domain != null) return false;
-//        if (sip != null ? !sip.equals(that.sip) : that.sip != null) return false;
-//        return timeStr != null ? timeStr.equals(that.timeStr) : that.timeStr == null;
-    }
-
-    @Override
-    public int compareTo(BinaryComparable other) {
+    public int compareTo(Object other) {
         Hadoop_04_DnsKey hadoop_04_dnsKey= (Hadoop_04_DnsKey) other;
+
         String domain = hadoop_04_dnsKey.getDomain();
         String sip = hadoop_04_dnsKey.getSip();
         String timeStr = hadoop_04_dnsKey.getTimeStr();
@@ -47,9 +48,11 @@ public class Hadoop_04_DnsKey extends BinaryComparable implements WritableCompar
                 &&timeStr.equals(this.timeStr)){
             return 0;
         }else {
-            return 1;
+            return -1;
         }
     }
+
+
 
     @Override
     public String toString() {
@@ -63,15 +66,6 @@ public class Hadoop_04_DnsKey extends BinaryComparable implements WritableCompar
     public Hadoop_04_DnsKey() {
     }
 
-    @Override
-    public int getLength() {
-        return this.getLength();
-    }
-
-    @Override
-    public byte[] getBytes() {
-        return new byte[0];
-    }
 
     public Hadoop_04_DnsKey(String domain, String sip, String timeStr) {
         this.domain = domain;
