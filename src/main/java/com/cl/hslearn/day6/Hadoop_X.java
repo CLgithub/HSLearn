@@ -6,10 +6,7 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
-import org.apache.hadoop.mapreduce.Job;
-import org.apache.hadoop.mapreduce.Mapper;
-import org.apache.hadoop.mapreduce.Partitioner;
-import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.*;
 import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
@@ -24,7 +21,24 @@ import java.io.IOException;
     map reduce 总结
  主要业务逻辑在map及reduce中完成，map负责将各种类型的数据抽象成key values形式，交给reduce对抽象过的数据进行运算，从而可以处理各种形式的数据
 
-
+ 资源相关参数：
+    配置在自己的mapreduce中
+    1）mapreudce.map.memory.mb:一个maptask可以使用的资源上限（单位MB），默认1024，如果mapTask实际使用的资源量超过该值，则会被强制kill
+    2）mapreduc.reduce.memory.mb:一个reduceTask可以使用的资源上限（单位MB）
+    3）mapreduce.map.java.opts: Map Task的JVM参数，可以配置java heap size等参数，
+        "-Xmx1024m -verbose:gc-Xloggc:/tmp/@taskid@.gc" (@taskid@会被Hadoop框架自动替换为相应的taskid)，默认：""
+    4）mapreduce.reduce.java.opts：Reduce Task的JVM参数
+    5）mapreduce.map.cpu.vcores：每个mapTask可以使用的最多cpu core数目，默认1
+    6）mapreduce.reduce.cpu.vcores：每个reduceTask可以使用的最多cpu core数目，默认1
+    配置在yarn服务器上
+    7)yarn.scheduler.minimum-allocation-mb  1024    给一个应用程序最小分配内存
+    8)yarn.scheduler.maximum-allocation-mb  8192
+    9)yarn.scheduler.minimum-allocation-vcores  1
+    10)yarn.scheduler.maximum-allocation-vcores  32
+    11)yarn.nodemanager.resource.memory-mb  8192
+    //shuffle 性能优化的关键
+    12)mapreudce.task.io.sort.mb    100         shuffle的环形缓冲区大小，默认100m
+    13)mapreuce.map.sort.spill.percent  0.8     环形缓冲区缓冲区溢出的阈值，默认80%
  */
 public class Hadoop_X {
     public static void main(String[] args) throws Exception{
@@ -36,7 +50,7 @@ public class Hadoop_X {
         conf.set("mapreduce.framework.name","yarn");    //设置运行模式    yarn 或 local
         conf.set("fs.defaultFS","hdfs://us1:9000/");    //当文件系统设置为hdfs后，要是设置用户，在环境变量里设置export HADOOP_USER_NAME="hadoop"
         conf.set("yarn.resourcemanager.hostname","us1");
-        Job job= Job.getInstance();
+        Job job= Job.getInstance(conf);
 
         job.setMapperClass(XMap1.class);    //设置mapclass
         job.setReducerClass(XReduce1.class);    //设置reduceclass
@@ -64,20 +78,28 @@ public class Hadoop_X {
         //现读取一个加大文件101.6M FileInputFormat  Total input paths to process : 1   JobSubmitter  number of splits:3
 //        TextInputFormat.setMaxInputSplitSize(job,1024*1024*16);   //若设置最大切片大小为16，应该splits:6
 //        TextInputFormat.setMinInputSplitSize(job,1024*1024*64); // 若minSplitSize=64M > blackSize，则splitSize=64M
+        //设置fileinputFormat也可以得到同样的效果，因为：InputFormat |--> FileInputFormat |--> TextInputFormat(默认使用)
+//                                                                                   |--> CombineFileInputFormat |--> CombineTextInputFormat
+//        FileInputFormat.setMaxInputSplitSize(job,1024*1024*16);
 
         //如果文件小而多时，可以采用另一种inputformat（combineFileOutputFormat）来将小文件在逻辑上规划到一个切片中
 //        job.setInputFormatClass(CombineTextInputFormat.class);//默认使用textInputFormat
 //        CombineTextInputFormat.setMaxInputSplitSize(job,1048576*256);   //256m
-//        CombineTextInputFormat.setMinInputSplitSize(job,1048576*64);   //64m
+//        CombineTextInputFormat.setMinInputSplitSize(job,1024*1024*64);   //64m
 
+        //可以添加某个指定的文件或jar，到所有maptask运行节点工作目录，备用
+//        job.addArchiveToClassPath();    //加载jar包到task运行节点classpath中
+//        job.addFileToClassPath();     //加载普通文件到task的classpath中
+//        job.addCacheArchive();        //加载压缩文件到task运行节点的工作目录
+//        job.addCacheFile();           //加载普通文件到task运行节点的工作目录
 
-        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/hadoopX/"));    //设置源数据
+        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/hadoopX/"));    //设置源数据     //可以只定义inutFormat
         FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/hadoopXout_1"));   //设置目的数据
 
         //设置该程序的jar包
 //        job.setJar("/home/hadoop/hx.jar");
-//        job.setJar("/Users/l/develop/clProject/HSLearn/out/artifacts/HSLearn/HSLearn.jar");     //集群运行时必须指定明确路径
-        job.setJarByClass(Hadoop_X.class);     //根据类路径来设置    本地运行时可以通过类路径查找
+        job.setJar("/Users/l/develop/clProject/HSLearn/out/artifacts/HSLearn/HSLearn.jar");     //集群运行时必须指定明确路径
+//        job.setJarByClass(Hadoop_X.class);     //根据类路径来设置    本地运行时可以通过类路径查找
 
 
         //将job中配置的相关参数，以及job所在的java类所在的jar包提交给yarn运行
