@@ -33,10 +33,10 @@ public class Hadoop_05 {
     public static void main(String[] args) throws InterruptedException, IOException, ClassNotFoundException {
         long l1=System.currentTimeMillis();
 
-//        Configuration conf=new Configuration();
-//        conf.set("mapreduce.framework.name","yarn");
-//        conf.set("yarn.resourcemanager.hostname","us1");
-        Job job= Job.getInstance();
+        Configuration conf=new Configuration();
+        conf.set("mapreduce.framework.name","yarn");
+        conf.set("yarn.resourcemanager.hostname","us1");
+        Job job= Job.getInstance(conf);
 
         //设置maptask和reducertask使用的业务类
         job.setMapperClass(Hadoop05_Map1.class);

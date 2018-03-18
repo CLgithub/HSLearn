@@ -8,6 +8,8 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.jobcontrol.ControlledJob;
+import org.apache.hadoop.mapreduce.lib.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import javax.swing.*;
@@ -38,6 +40,26 @@ public class Hadoop_07 {
     public static void main(String[] args) throws Exception {
         task2();
         task2_2();
+//        task3();
+    }
+
+    private static void task3() throws IOException {
+        Job job1 = Job.getInstance();
+        Job job2 = Job.getInstance();
+        ControlledJob cjob1=new ControlledJob(job1.getConfiguration());
+        ControlledJob cjob2=new ControlledJob(job2.getConfiguration());
+
+        cjob1.setJob(job1);
+        cjob2.setJob(job2);
+
+        //设置作业依赖关系
+        cjob2.addDependingJob(cjob1);
+
+        JobControl jobControl=new JobControl("");
+        jobControl.addJob(cjob1);
+        jobControl.addJob(cjob2);
+
+
     }
 
     public static void task2() throws Exception {
@@ -55,7 +77,7 @@ public class Hadoop_07 {
         job.setOutputKeyClass(Text.class);
         job.setOutputValueClass(Text.class);
 
-        FileInputFormat.setInputPaths(job, new Path("hdfs://us1:9000/hadoop07/"));
+        FileInputFormat.setInputPaths(job, new Path("/Users/l/Downloads/hadoop07/"));
         //指定job的输出结果
 //        FileOutputFormat.setOutputPath(job, new Path("/hadoop06out_1"));
         FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/hadoop07out_1"));
