@@ -10,7 +10,9 @@ import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.Reducer;
+import org.apache.hadoop.mapreduce.lib.input.CombineTextInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
 import java.io.DataInput;
@@ -47,14 +49,33 @@ public class Hadoop_X {
         job.setCombinerClass(XReduce1.class);                   //在不影响业务逻辑的前提写，可以使用combinerClass先合并部分map输出
 
         //设置分割类型(数据分区器)
-        job.setPartitionerClass(XPartitionner.class);
-        job.setNumReduceTasks(2);   //同时指定相应分区数量的reduceTask，否则只能输出到一个
+//        job.setPartitionerClass(XPartitionner.class);
+//        job.setNumReduceTasks(2);   //同时指定相应分区数量的reduceTask，否则只能输出到一个
 
-        FileInputFormat.setInputPaths(job, new Path("/Users/l/Downloads/hadoopX/"));    //设置源数据
-        FileOutputFormat.setOutputPath(job, new Path("/Users/l/Downloads/hadoopXout_1"));   //设置目的数据
+        //默认情况下：当n个小文件时，是n个切片  FileInputFormat  Total input paths to process : n JobSubmitter  number of splits:n
+        /* mapTask的数量由切片大小确定 FileInputFormat中
+            切片大小=Math.max(minSize,Math.min(maxSize,blockSize))      在最大切片大小与块大小间取一个小的，块大小默认是128m
+                如果 maxSize < blockSize 则切片大小 = maxSize
+                如果 maxSize > blockSize 则切片大小 = blockSize
+            切片大小至少是最小切片大小，最大是blockSize大小
+         */
+        //默认情况下使用TextInputFormat，其maxSize=9223372036854775807L(1024*1024*1024 * 1024*1024*1024 * 8), minSize=1L, blackSize=33554432(1024*1024*32=32M不明白在哪设置，集群上是128M) ？134217728(1024*1024*128)
+        //Hadoop_X.testdata大小为774字节，所以 SplitSize=blackSize，通常情况下切片大小都是blackSize大小，因为maxSize非常大
+        //现读取一个加大文件101.6M FileInputFormat  Total input paths to process : 1   JobSubmitter  number of splits:3
+//        TextInputFormat.setMaxInputSplitSize(job,1024*1024*16);   //若设置最大切片大小为16，应该splits:6
+//        TextInputFormat.setMinInputSplitSize(job,1024*1024*64); // 若minSplitSize=64M > blackSize，则splitSize=64M
+
+        //如果文件小而多时，可以采用另一种inputformat（combineFileOutputFormat）来将小文件在逻辑上规划到一个切片中
+//        job.setInputFormatClass(CombineTextInputFormat.class);//默认使用textInputFormat
+//        CombineTextInputFormat.setMaxInputSplitSize(job,1048576*256);   //256m
+//        CombineTextInputFormat.setMinInputSplitSize(job,1048576*64);   //64m
+
+
+        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/hadoopX/"));    //设置源数据
+        FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/hadoopXout_1"));   //设置目的数据
 
         //设置该程序的jar包
-//        job.setJar("/home/hadoop/wc.jar");
+//        job.setJar("/home/hadoop/hx.jar");
 //        job.setJar("/Users/l/develop/clProject/HSLearn/out/artifacts/HSLearn/HSLearn.jar");     //集群运行时必须指定明确路径
         job.setJarByClass(Hadoop_X.class);     //根据类路径来设置    本地运行时可以通过类路径查找
 
@@ -103,8 +124,8 @@ class XKey1 implements WritableComparable{
     @Override
     public int compareTo(Object o) {
         XKey1 xKey1= (XKey1) o;
-//        return (xKey1.getDomain()+xKey1.getTimeStr()).compareTo(this.getDomain()+this.getTimeStr());  //忽略ip
-        return xKey1.toString().compareTo(this.toString());
+        return (xKey1.getDomain()+xKey1.getTimeStr()).compareTo(this.getDomain()+this.getTimeStr());  //忽略ip
+//        return xKey1.toString().compareTo(this.toString());
     }
     //定义对象写出时的序列化结构
     @Override
@@ -136,11 +157,7 @@ class XKey1 implements WritableComparable{
 
     @Override
     public String toString() {
-        return "XKey1{" +
-                "domain='" + domain + '\'' +
-                ", timeStr='" + timeStr + '\'' +
-                ", ip='" + ip + '\'' +
-                '}';
+        return domain +", " + timeStr + ", " + ip ;
     }
 
     public String getDomain() {
