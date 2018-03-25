@@ -1,6 +1,8 @@
 package com.cl.hslearn.day3;
 
 /**
+ 免密登录设置：
+ 在us1上执行命令：ssh-keygen生成自己的公钥id_rsa.pub和私钥id_rsa，将公钥传给us2、us3。。。的.ssh/authorized_keys文件中，us1便可以免密登录us2、us3。。。
 zookeeper 是一个分布式协调服务，就说为用户分布式应用程序提供协调服务
 zookeeper集群搭建：
     0.linux网卡设置：

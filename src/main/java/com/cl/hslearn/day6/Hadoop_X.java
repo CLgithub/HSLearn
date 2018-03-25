@@ -49,6 +49,7 @@ public class Hadoop_X {
         Configuration conf=new Configuration();
         conf.set("mapreduce.framework.name","yarn");    //设置运行模式    yarn 或 local
         conf.set("fs.defaultFS","hdfs://us1:9000/");    //当文件系统设置为hdfs后，要是设置用户，在环境变量里设置export HADOOP_USER_NAME="hadoop"
+//        conf.set("fs.defaultFS","hdfs://bi"); //ha高可用后还不知道怎么填写这里的地址
         conf.set("yarn.resourcemanager.hostname","us1");
         Job job= Job.getInstance(conf);
 
@@ -93,7 +94,8 @@ public class Hadoop_X {
 //        job.addCacheArchive();        //加载压缩文件到task运行节点的工作目录
 //        job.addCacheFile();           //加载普通文件到task运行节点的工作目录
 
-        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/hadoopX/"));    //设置源数据     //可以只定义inutFormat
+//        FileInputFormat.setInputPaths(job, new Path("/Users/L/Downloads/hadoopX/"));    //设置源数据     //可以只定义inutFormat
+        FileInputFormat.setInputPaths(job, new Path("/hadoopX/"));
         FileOutputFormat.setOutputPath(job, new Path("/Users/L/Downloads/hadoopXout_1"));   //设置目的数据
 
         //设置该程序的jar包
